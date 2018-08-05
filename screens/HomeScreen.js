@@ -1,9 +1,12 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, Button } from 'react-native';
+import Modal from 'react-native-modal';
+import { TextInput } from 'react-native';
 
 class HomeScreen extends React.Component {
     constructor(props) {
         super(props);
+        this.state = { modalVisible: false }
         this.openJournal = this.openJournal.bind(this);
         this.createJournal = this.createJournal.bind(this);
     }
@@ -13,12 +16,27 @@ class HomeScreen extends React.Component {
     }
 
     createJournal() {
-
+        this.setState({ modalVisible: true });
     }
 
     render() {
         return (
-            <View style={styles.parent}>
+            <View style={styles.parent}>   
+                <Modal isVisible={this.state.modalVisible}
+                    onBackButtonPress={() => {
+                        this.setState({ modalVisible: false });
+                    }}
+                    onBackdropPress={() => {
+                        this.setState({ modalVisible: false });
+                    }}>
+                    <View style={styles.modal}>
+                        <Text>Your journal will be encrypted. Please choose a strong password.</Text>
+                        <TextInput secureTextEntry={true} placeholder='Enter password' />
+                        <TextInput secureTextEntry={true} placeholder='Re-enter password' />
+                        <Button title='OK' onPress={() => {console.log('pressed')}} />
+                        <Button title='Cancel' onPress={() => {console.log('pressed')}} />
+                    </View>
+                </Modal>
                 <View style={styles.view}>
                     <Text style={styles.header}>Welcome</Text>
                 </View>
@@ -92,6 +110,9 @@ const styles = {
     footerText: {
         color: 'white',
         fontWeight: '300'
+    },
+    modal: {
+        backgroundColor: 'white'
     }
 };
 
