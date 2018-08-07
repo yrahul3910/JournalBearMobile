@@ -1,14 +1,26 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Button } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
+import Button from 'apsl-react-native-button';
 import Modal from 'react-native-modal';
 import { TextInput } from 'react-native';
+import owasp from 'owasp-password-strength-test';
 
 class HomeScreen extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { modalVisible: false }
+        this.state = { modalVisible: false, error: '' }
         this.openJournal = this.openJournal.bind(this);
         this.createJournal = this.createJournal.bind(this);
+        this.confirmNewJournal = this.confirmNewJournal.bind(this);
+
+        this.journalData = {
+            pwd: '',
+            entries: { en: [] },
+            currentEntryCount: 0
+        };
+
+        this.pwdRef = React.createRef();
+        this.rePwdRef = React.createRef();
     }
 
     openJournal() {
@@ -17,6 +29,42 @@ class HomeScreen extends React.Component {
 
     createJournal() {
         this.setState({ modalVisible: true });
+    }
+
+    checkPwdStrength(pwd) {
+        owasp.config({
+            minLength: 8
+        });
+        let result = owasp.test(pwd);
+        if (result.errors)
+            return result.errors;
+        else
+            return null;
+    }
+
+    confirmNewJournal() {
+        let pwd = this.pwdRef.current._lastNativeText;
+        let conf = this.rePwdRef.current._lastNativeText;
+
+        if (/^\s*$/.test(pwd) || !pwd) {
+            this.setState({ error: 'Password cannot be empty.' });
+            return;
+        }
+        if (pwd !== conf) {
+            this.setState({ error: 'Passwords do not match.' });
+            return;
+        }
+        
+        let pwdStrength = this.checkPwdStrength(pwd);
+        if (pwdStrength) {
+            // Not secure enough
+            this.setState({ error: pwdStrength[0] });
+            return;
+        }
+
+        this.journalData.pwd = pwd;
+
+        // Journal created. Show success message and move to entries screen.
     }
 
     render() {
@@ -30,11 +78,33 @@ class HomeScreen extends React.Component {
                         this.setState({ modalVisible: false });
                     }}>
                     <View style={styles.modal}>
-                        <Text>Your journal will be encrypted. Please choose a strong password.</Text>
-                        <TextInput secureTextEntry={true} placeholder='Enter password' />
-                        <TextInput secureTextEntry={true} placeholder='Re-enter password' />
-                        <Button title='OK' onPress={() => {console.log('pressed')}} />
-                        <Button title='Cancel' onPress={() => {console.log('pressed')}} />
+                        <Text style={{marginBottom: 10, color: 'red'}}>
+                            {this.state.error}
+                        </Text>
+                        <Text style={{ marginBottom: 20 }}>
+                            Your journal will be encrypted. Please choose a strong password.
+                        </Text>
+                        <TextInput ref={this.pwdRef}
+                            secureTextEntry={true} 
+                            placeholder='Enter password'
+                            style={styles.textInput} />
+                        <TextInput ref={this.rePwdRef}
+                            secureTextEntry={true} 
+                            placeholder='Re-enter password'
+                            style={styles.textInput} />
+                        <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly'}}>
+                            <Button title='OK' 
+                                onPress={this.confirmNewJournal}
+                                style={styles.okButton}
+                                textStyle={{fontSize: 14, fontWeight: '500', color: 'rgb(42, 101, 132)'}}>
+                                OK
+                            </Button>
+                            <Button onPress={() => {this.setState({ modalVisible: false });}}
+                                style={styles.cancelButton}
+                                textStyle={{fontSize: 14, fontWeight: '500', color: 'red'}}>
+                                Cancel
+                            </Button>
+                        </View>
                     </View>
                 </Modal>
                 <View style={styles.view}>
@@ -112,7 +182,26 @@ const styles = {
         fontWeight: '300'
     },
     modal: {
-        backgroundColor: 'white'
+        backgroundColor: 'white',
+        padding: 20
+    },
+    textInput: {
+        height: 40,
+        marginBottom: 10
+    },
+    okButton: {
+        width: 80,
+        borderRadius: 0,
+        borderWidth: 2,
+        borderColor: 'rgb(42, 101, 132)',
+        padding: 5,
+    },
+    cancelButton: {
+        width: 80,
+        borderRadius: 0,
+        borderWidth: 2,
+        borderColor: 'red',
+        padding: 5,
     }
 };
 
