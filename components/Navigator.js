@@ -1,8 +1,10 @@
 import { createStackNavigator } from 'react-navigation';
 import HomeScreen from '../screens/HomeScreen';
+import EntriesScreen from '../screens/EntriesScreen';
 
 const Navigator = createStackNavigator({
-    Home: { screen: HomeScreen }
+    Home: HomeScreen,
+    Entries: EntriesScreen
 }, {
     navigationOptions: {
         headerStyle: {
@@ -17,7 +19,8 @@ const Navigator = createStackNavigator({
         },
         headerTitle: 'JournalBear',
         headerTintColor: 'white'
-    }
+    },
+    initialRouteName: 'Home'
 });
 
 export default Navigator;

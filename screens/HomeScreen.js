@@ -24,7 +24,8 @@ class HomeScreen extends React.Component {
     }
 
     openJournal() {
-
+        // For development use to get quick access to the Entries screen.
+        this.props.navigation.navigate('Entries', {journalData: this.journalData});
     }
 
     createJournal() {
@@ -36,10 +37,7 @@ class HomeScreen extends React.Component {
             minLength: 8
         });
         let result = owasp.test(pwd);
-        if (result.errors)
-            return result.errors;
-        else
-            return null;
+        return result.errors;
     }
 
     confirmNewJournal() {
@@ -56,7 +54,7 @@ class HomeScreen extends React.Component {
         }
         
         let pwdStrength = this.checkPwdStrength(pwd);
-        if (pwdStrength) {
+        if (pwdStrength.length) {
             // Not secure enough
             this.setState({ error: pwdStrength[0] });
             return;
@@ -64,7 +62,9 @@ class HomeScreen extends React.Component {
 
         this.journalData.pwd = pwd;
 
-        // Journal created. Show success message and move to entries screen.
+        // Journal created. Move to entries screen.
+        this.setState({modalVisible: false});
+        this.props.navigation.navigate('Entries', {journalData: this.journalData});
     }
 
     render() {
@@ -191,15 +191,15 @@ const styles = {
     },
     okButton: {
         width: 80,
-        borderRadius: 0,
         borderWidth: 2,
         borderColor: 'rgb(42, 101, 132)',
+        borderRadius: 0,
         padding: 5,
     },
     cancelButton: {
         width: 80,
-        borderRadius: 0,
         borderWidth: 2,
+        borderRadius: 0,
         borderColor: 'red',
         padding: 5,
     }
