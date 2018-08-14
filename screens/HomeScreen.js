@@ -4,6 +4,7 @@ import Button from 'apsl-react-native-button';
 import Modal from 'react-native-modal';
 import { TextInput } from 'react-native';
 import owasp from 'owasp-password-strength-test';
+import { DocumentPicker, DocumentPickerUtil } from 'react-native-document-picker';
 
 class HomeScreen extends React.Component {
     constructor(props) {
@@ -25,7 +26,19 @@ class HomeScreen extends React.Component {
 
     openJournal() {
         // For development use to get quick access to the Entries screen.
-        this.props.navigation.navigate('Entries', {journalData: this.journalData});
+        //this.props.navigation.navigate('Entries', {journalData: this.journalData});
+
+        DocumentPicker.show({
+            filetype: [DocumentPickerUtil.images()],
+          },(error,res) => {
+            // Android
+            console.log(
+               res.uri,
+               res.type, // mime type
+               res.fileName,
+               res.fileSize
+            );
+          });
     }
 
     createJournal() {
