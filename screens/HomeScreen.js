@@ -6,6 +6,7 @@ import { TextInput } from 'react-native';
 import owasp from 'owasp-password-strength-test';
 import { DocumentPicker, DocumentPickerUtil } from 'react-native-document-picker';
 import async from 'async';
+import '../shim';
 import os from 'react-native-os';
 import fs from 'react-native-fs';
 import crypto from 'crypto';
@@ -116,7 +117,7 @@ class HomeScreen extends React.Component {
 
         DocumentPicker.show({
             filetype: [DocumentPickerUtil.allFiles()],
-        },(error,res) => {
+        }, async (error,res) => {
             let filename = res.uri;
 
             if (filename.endsWith(".ejournal"))
@@ -125,8 +126,12 @@ class HomeScreen extends React.Component {
                 this.currentFilePath = filename;
                 this.journalData.currentFileVersion = 5.1;
             }
-
-            encryptedData = fs.readFileSync(filenames[0]).toString();
+            alert('Will read now');
+            data = await fs.readFile(filename);
+            alert('Read complete');
+            this.encryptedData = data.toString();
+            this.setState({ openModalVisible: true });
+            alert('State has been set.');
         });
     }
 
